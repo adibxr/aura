@@ -24,12 +24,12 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     # Create keyboard with 4 buttons
     keyboard = [
         [
-            InlineKeyboardButton("📱 Website", url="https://example.com"),
-            InlineKeyboardButton("🛒 Shop", url="https://example.com/shop")
+            InlineKeyboardButton("🗂️ RESOURCES", url="https://tinyurl.com/resourcespackadi"),
+            InlineKeyboardButton("👨🏻‍💻 CODES", url="https://adibxr.github.io/code")
         ],
         [
-            InlineKeyboardButton("📞 Contact", url="https://example.com/contact"),
-            InlineKeyboardButton("ℹ️ About Us", url="https://example.com/about")
+            InlineKeyboardButton("🎬 UI/UX", url="https://uiverse.io"),
+            InlineKeyboardButton("🌐 WEBSITE", url="https://adi.immortaladi.live")
         ]
     ]
     
