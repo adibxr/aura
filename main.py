@@ -1,4 +1,5 @@
 import logging
+import os
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ChatMemberUpdated
 from telegram.ext import (
     Application,
@@ -16,8 +17,8 @@ logging.basicConfig(
     level=logging.INFO
 )
 
-# Bot token
-TOKEN = "7500136567:AAFJpb-WfsyYMkC2gvYZ1NKKtF0sAFLZACU"
+# Bot token from Railway environment
+TOKEN = os.getenv("TOKEN", "7500136567:AAFJpb-WfsyYMkC2gvYZ1NKKtF0sAFLZACU")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
@@ -47,6 +48,9 @@ async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
 async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     for member in update.message.new_chat_members:
+        # Skip if the bot added itself
+        if member.id == context.bot.id:
+            continue
         mention = f"<a href='tg://user?id={member.id}'>{member.full_name}</a>"
         await update.message.reply_html(
             f"👋 Welcome {mention} to the group! 🎉"
@@ -54,6 +58,9 @@ async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def goodbye(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     member = update.chat_member.old_chat_member.user
+    # Ignore bot leaving
+    if member.id == context.bot.id:
+        return
     if update.chat_member.old_chat_member.status in ['member', 'restricted'] and update.chat_member.new_chat_member.status == 'left':
         mention = f"<a href='tg://user?id={member.id}'>{member.full_name}</a>"
         await context.bot.send_message(
