@@ -1,6 +1,6 @@
 import logging
 import os
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ChatMemberUpdated
 from telegram.ext import (
     Application,
     CommandHandler,
@@ -11,16 +11,15 @@ from telegram.ext import (
     ChatMemberHandler
 )
 
-# Logging
+# Enable logging
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO
 )
 
-# Get token from environment (for Railway deployment)
-TOKEN = os.getenv("TOKEN")  # Or directly paste token for local: TOKEN = "YOUR_TOKEN"
+# Bot token from Railway environment
+TOKEN = os.getenv("TOKEN", "7500136567:AAFJpb-WfsyYMkC2gvYZ1NKKtF0sAFLZACU")
 
-# /start command
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
     await update.message.reply_text(
@@ -43,49 +42,40 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
     await update.message.reply_text("Select an option:", reply_markup=reply_markup)
 
-# Button press handler
 async def button_callback(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     query = update.callback_query
     await query.answer()
 
-# Handle new members
 async def welcome(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    messages = []
     for member in update.message.new_chat_members:
+        # Skip if the bot added itself
         if member.id == context.bot.id:
             continue
         mention = f"<a href='tg://user?id={member.id}'>{member.full_name}</a>"
-        messages.append(f"👋 Welcome {mention} to the group! 🎉")
+        await update.message.reply_html(
+            f"👋 Welcome {mention} to the group! 🎉"
+        )
 
-    if messages:
-        await update.message.reply_html('\n'.join(messages))
-
-# Handle left/removed members
-async def member_status_change(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    old_status = update.chat_member.old_chat_member.status
-    new_status = update.chat_member.new_chat_member.status
-    user = update.chat_member.old_chat_member.user
-
-    if user.id == context.bot.id:
-        return  # Ignore bot updates
-
-    # Detect left or kicked
-    if old_status in ['member', 'restricted'] and new_status in ['left', 'kicked']:
-        mention = f"<a href='tg://user?id={user.id}'>{user.full_name}</a>"
+async def goodbye(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    member = update.chat_member.old_chat_member.user
+    # Ignore bot leaving
+    if member.id == context.bot.id:
+        return
+    if update.chat_member.old_chat_member.status in ['member', 'restricted'] and update.chat_member.new_chat_member.status == 'left':
+        mention = f"<a href='tg://user?id={member.id}'>{member.full_name}</a>"
         await context.bot.send_message(
             chat_id=update.chat_member.chat.id,
-            text=f"👋 {mention} has left or was removed from the group.",
+            text=f"👋 {mention} has left the group.",
             parse_mode="HTML"
         )
 
-# Main
 def main() -> None:
     application = Application.builder().token(TOKEN).build()
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CallbackQueryHandler(button_callback))
     application.add_handler(MessageHandler(filters.StatusUpdate.NEW_CHAT_MEMBERS, welcome))
-    application.add_handler(ChatMemberHandler(member_status_change, ChatMemberHandler.CHAT_MEMBER))
+    application.add_handler(ChatMemberHandler(goodbye, ChatMemberHandler.MY_CHAT_MEMBER))
 
     application.run_polling()
 
