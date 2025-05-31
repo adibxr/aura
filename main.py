@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 
 # Bot token from Railway environment
-TOKEN = os.getenv("TOKEN", "7500136567:AAFJpb-WfsyYMkC2gvYZ1NKKtF0sAFLZACU")
+TOKEN = os.getenv("TOKEN", "8115219776:AAHK_H2r-mQ8Zr2G2Sg0AhQvyBMoGeI1uys")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     user = update.effective_user
@@ -32,10 +32,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     keyboard = [
         [
             InlineKeyboardButton("🗂️ RESOURCES", url="https://tinyurl.com/resourcespackadi"),
-            InlineKeyboardButton("👨🏻‍💻 CODES", url="https://adibxr.github.io/code")
+            InlineKeyboardButton("👨🏻‍💻 CODES", url="https://github.com/adibxr")
         ],
         [
-            InlineKeyboardButton("🎬 UI/UX", url="https://uiverse.io"),
+            InlineKeyboardButton("🎬 BLOGGER", url="https://immortaladi.blogspot.com"),
             InlineKeyboardButton("🌐 WEBSITE", url="https://adi.immortaladi.live")
         ]
     ]
